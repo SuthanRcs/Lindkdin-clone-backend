@@ -5,9 +5,9 @@ const jwtToken= require("../utils/jwt");
 const regsiterController = require("../controllers/regsiterCon");
 
 
-// router.get("get-all-users",regsiterController.getAlluser);
+router.get("/get-all-Users",regsiterController.getAllusers);
  
-// router.get("get-detail:/id" , regsiterController.getProductbyid);
+router.get("/get-user-detailBy/:id" , regsiterController.getuserById);
 
 router.post("/create-user", regsiterController.createUser);
 
@@ -28,11 +28,10 @@ router.post('/login', (req, res) => {
 });
 
 
-router.post("/update-user", regsiterController.updateUser);
+router.post("/update-user",jwtToken.authenticateToken, regsiterController.updateUser);
 
 
 router.delete("/delete-user/:id", regsiterController.deleteUserById);
-
 
 
 module.exports = router

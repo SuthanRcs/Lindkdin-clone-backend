@@ -6,6 +6,8 @@ const express = require("express")
 
 const app = express();
 
+const cookieParser = require("cookie-parser")
+
 const cors = require("cors");
 
 const corsOptions = {
@@ -18,6 +20,9 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 const db = require("./db");
+
+//cookie parser 
+app.use(cookieParser());
 
 // Middleware to parse JSON body
 app.use(express.json());

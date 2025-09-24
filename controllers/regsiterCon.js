@@ -1,7 +1,8 @@
 const { where } = require("sequelize");
 const regsiter = require("../models/Register");
 const bcrypt = require("bcryptjs");
-
+// const { genAccessToken, authenticateToken } = require("../utils/jwt");
+const jwttokeninRegsiter = require('../utils/jwt')
 
 module.exports = {
 
@@ -14,17 +15,17 @@ module.exports = {
         catch (error) {
             console.log("error", error);
             res.status(500).json({ message: "failed to get all users" })
-
         }
 
     },
-       getuserById: async (req, res) => {
-      const {id } = req.params
-            console.log("ID from params:", id);
+    getuserById: async (req, res) => {
+
+        const { id } = req.params
+        console.log("ID from params:", id);
         try {
-            const userid = await regsiter.findOne({where: {id}});
-            if(!userid){
-                res.status(401).json({message:"user not found"})
+            const userid = await regsiter.findOne({ where: { id } });
+            if (!userid) {
+                res.status(401).json({ message: "user not found" })
 
             }
             res.status(200).json({ data: userid });
@@ -34,7 +35,7 @@ module.exports = {
         }
     },
 
-
+ 
     createUser: async (req, res) => {
         const {
             id,
@@ -44,16 +45,15 @@ module.exports = {
         } = req.body;
 
         try {
-        const hashedPassword = await bcrypt.hash(password, 10); 
-
+            const hashedPassword = await bcrypt.hash(password, 10);
             const newProduct = await regsiter.create({
                 id,
                 email,
-                password :hashedPassword,
+                password: hashedPassword,
                 isActive
             })
-
-            res.status(201).json({ success: true, otp: "", data: newProduct, message: "Product created successfully" });
+            // const token = jwttokeninRegsiter.genAccessToken({ email: email });
+            res.status(201).json({ success: true, data: newProduct, message: "Product created successfully" });
         } catch (error) {
             console.error("Error creating product:", error);
             res.status(500).json({ success: false, message: "Failed to create user" });
@@ -89,8 +89,8 @@ module.exports = {
     },
     deleteUserById: async (req, res) => {
         const { id } = req.params
-        console.log(id ,".......");
-        
+        console.log(id, ".......");
+
         try {
             const deleteUser = await regsiter.destroy({ where: { id } });
             res.status(200).json({ success: true, data: deleteUser });

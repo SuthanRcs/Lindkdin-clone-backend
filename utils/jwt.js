@@ -8,28 +8,26 @@ const genAccessToken = (payload) => {
 }
 
 const requestToken = (payload) => {
-    const requestToken = jwt.sign(payload, process.env.ACCESS_SECRET_KEY, { expiresIn: "10h" });
+    const requestToken = jwt.sign(payload, process.env.REFERSH_TOKEN, { expiresIn: "5d" });
     return requestToken;
 }
 
 
 function authenticateToken(req, res, next) {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
 
-    const authHeader = req.headers['Authorization']
+    // console.log(req.headers, "headersssssssssssss");
+    // console.log(authHeader, "authHeaderssssss");
+    // console.log(token, "token value");
 
-    const token = authHeader && authHeader.split('')[1]
-
-    if (token == null) return res.status(401)
+    if (token == null) return res.status(401).json({ message: "No token provided" });
 
     jwt.verify(token, process.env.ACCESS_SECRET_KEY, (err, user) => {
-        if (err) {
-            res.sendStatus(403)
-            req.user = user;
-            next()
-
-        }
-    })
-
+        if (err) return res.sendStatus(403);
+        req.user = user;
+        next();
+    });
 }
 
 

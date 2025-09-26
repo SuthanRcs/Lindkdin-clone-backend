@@ -1,8 +1,9 @@
 const { where } = require("sequelize");
 const regsiter = require("../models/Register");
 const bcrypt = require("bcryptjs");
-// const { genAccessToken, authenticateToken } = require("../utils/jwt");
 const jwttokeninRegsiter = require('../utils/jwt')
+const crypto = require("crypto");
+
 
 module.exports = {
 
@@ -35,7 +36,7 @@ module.exports = {
         }
     },
 
- 
+
     createUser: async (req, res) => {
         const {
             id,
@@ -52,8 +53,7 @@ module.exports = {
                 password: hashedPassword,
                 isActive
             })
-            // const token = jwttokeninRegsiter.genAccessToken({ email: email });
-            res.status(201).json({ success: true, data: newProduct, message: "Product created successfully" });
+            res.status(201).json({ success: true, otp: jwttokeninRegsiter.generateSecureOTP(), data: newProduct, message: "Product created successfully" });
         } catch (error) {
             console.error("Error creating product:", error);
             res.status(500).json({ success: false, message: "Failed to create user" });
@@ -70,16 +70,18 @@ module.exports = {
         } = req.body
 
         try {
+            const hashedPassword = await bcrypt.hash(password, 10);
             const udpateusers = await regsiter.update({
                 id,
                 email,
-                password,
+                password: hashedPassword,
                 isActive
 
             }, {
                 where: { id }
             });
-            res.status(201).json({ data: udpateusers, message: "user update succesffuly" })
+            const updatedUser = await regsiter.findOne({ where: { id } })
+            res.status(201).json({ message: "user update succesffuly", updateduser: updatedUser })
         }
         catch (error) {
             console.error("Error to user:", error);
@@ -87,17 +89,23 @@ module.exports = {
         }
 
     },
-    deleteUserById: async (req, res) => {
-        const { id } = req.params
-        console.log(id, ".......");
 
+    deleteUserById: async (req, res) => {
+        const { id } = req.body
         try {
-            const deleteUser = await regsiter.destroy({ where: { id } });
-            res.status(200).json({ success: true, data: deleteUser });
-        } catch (error) {
-            console.log("error.", error);
-            res.status(500).json({ success: false, message: "Failed to delete user" });
+            const deleteResult = await regsiter.update({ isActive: 0 }, { where: { id } })
+            const updatedDeletedUser = await regsiter.findOne({ where: { id } });
+
+            if (deleteResult[0] == 0) {
+                return res.status(404).status({ message: "user not found" })
+            }
+            res.status(200).json({ message: 'Record marked as inactive', deletedUser: updatedDeletedUser });
+
         }
-    },
+        catch (err) {
+            res.status(500).json({ message: "error to deleet user " + err.message })
+
+        }
+    }
 
 }

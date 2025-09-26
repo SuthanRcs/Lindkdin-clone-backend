@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-
+const crypto = require("crypto")
 const genAccessToken = (payload) => {
 
     const accesstoken = jwt.sign(payload, process.env.ACCESS_SECRET_KEY, { expiresIn: "5m" });
@@ -29,6 +29,13 @@ function authenticateToken(req, res, next) {
         next();
     });
 }
+function generateSecureOTP(length = 6) {
+
+  const min = Math.pow(10, length - 1);
+  const max = Math.pow(10, length) - 1;
+  return crypto.randomInt(min, max + 1); 
+}
 
 
-module.exports = { authenticateToken, genAccessToken, requestToken }
+
+module.exports = { authenticateToken, genAccessToken, requestToken ,generateSecureOTP }

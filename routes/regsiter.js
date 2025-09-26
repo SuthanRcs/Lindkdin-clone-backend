@@ -27,14 +27,13 @@ router.post('/login', (req, res) => {
 });
 
 
-
-router.get("/get-all-Users", jwtToken.authenticateToken, regsiterController.getAllusers);
+router.get("/get-all-users", jwtToken.authenticateToken, regsiterController.getAllusers);
 
 router.get("/get-user-detailBy/:id", jwtToken.authenticateToken, regsiterController.getuserById);
 
 router.post("/update-user", jwtToken.authenticateToken, regsiterController.updateUser);
 
-router.delete("/delete-user/:id", jwtToken.authenticateToken, regsiterController.deleteUserById);
+router.post("/delete-user/", regsiterController.deleteUserById);
 
 
 module.exports = router

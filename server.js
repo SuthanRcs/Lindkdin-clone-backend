@@ -27,9 +27,10 @@ app.use(cookieParser());
 // Middleware to parse JSON body
 app.use(express.json());
 
-const regsiterRoutes = require("./routes/regsiter")
+const regsiterRoutes = require("./routes/register")
 
-app.use("/resgiter", regsiterRoutes)
+app.use("/register", regsiterRoutes)
+
 
 // check route
 app.get('/get-check', (req, res) => {

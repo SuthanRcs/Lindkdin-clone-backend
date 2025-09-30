@@ -1,9 +1,9 @@
 const express = require("express")
 const router = express.Router();
 const jwtToken = require("../utils/jwt");
+ 
 
 const regsiterController = require("../controllers/regsiterCon");
-
 
 
 router.post("/create-user", regsiterController.createUser);
@@ -26,6 +26,9 @@ router.post('/login', (req, res) => {
     });
 });
 
+router.post("/send-email-otp" , regsiterController.EmailOtp);
+
+router.post("/verify-otp" , regsiterController.verifyOtp);
 
 router.get("/get-all-users", jwtToken.authenticateToken, regsiterController.getAllusers);
 

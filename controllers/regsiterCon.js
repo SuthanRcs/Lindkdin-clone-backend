@@ -124,10 +124,10 @@ module.exports = {
                 return res.status(400).json({ success: false, message: "OTP expired" });
             }
 
-              if (String(cachedOtp.otp) != String(otp)) {
+            if (String(cachedOtp.otp) != String(otp)) {
                 return res.status(400).json({ success: false, message: "Invalid OTP" });
             }
-                        console.log("sss", String(cachedOtp.otp), String(otp), "otppppppppp");
+            console.log("sss", String(cachedOtp.otp), String(otp), "otppppppppp");
 
             return res.status(200).json({ success: true, message: "OTP verified successfully" });
 

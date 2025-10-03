@@ -86,7 +86,7 @@ module.exports = {
                 otp: otpemail,
                 otpExpiry: Date.now() + 5 * 60 * 1000
             }
-            console.log(otpCache, "otp caheceeeeeeeee");
+            // console.log(otpCache, "otp caheceeeeeeeee");
 
             const info = await transporter.sendMail({
                 to: email,
@@ -100,8 +100,8 @@ module.exports = {
         </div>`
             });
 
-            console.log("Email sended:");
-            return res.status(200).json({ success: true, otp: otpemail, message: "Email sent successfully" });
+            console.log("Email sended:",otpemail);
+            return res.status(200).json({ success: true,otp :otpemail,  message: "Email sent successfully" });
         } catch (err) {
             console.error("Error sending email:", err.message);
             return res.status(500).json({ success: false, message: "Failed to send email" });
@@ -109,33 +109,38 @@ module.exports = {
 
     },
     verifyOtp: async (req, res) => {
-        try {
-            const { email, otp } = req.body;
-            const emailKey = email.trim().toLowerCase();
-            const cachedOtp = otpCache[emailKey];
-            console.log(cachedOtp, "cache checkkkkkkk");
+    try {
+        const { email, otp } = req.body;
 
-            if (!cachedOtp) {
-                return res.status(404).json({ success: false, message: "No OTP found for this email" });
-            }
-
-            if (Date.now() > cachedOtp.otpExpiry) {
-                delete otpCache[emailKey];
-                return res.status(400).json({ success: false, message: "OTP expired" });
-            }
-
-            if (String(cachedOtp.otp) != String(otp)) {
-                return res.status(400).json({ success: false, message: "Invalid OTP" });
-            }
-            console.log("sss", String(cachedOtp.otp), String(otp), "otppppppppp");
-
-            return res.status(200).json({ success: true, message: "OTP verified successfully" });
-
-        } catch (err) {
-            console.error(err);
-            return res.status(500).json({ success: false, message: "Server error" });
+        if (!email || !otp) {
+            return res.status(400).json({ success: false, message: "Email and OTP are required" });
         }
-    },
+
+        const emailKey = email.trim().toLowerCase();
+        const cachedOtp = otpCache[emailKey];
+        console.log(cachedOtp, "cache checkkkkkkk");
+
+        if (!cachedOtp) {
+            return res.status(404).json({ success: false, message: "No OTP found for this email" });
+        }
+
+        if (Date.now() > cachedOtp.otpExpiry) {
+            delete otpCache[emailKey];
+            return res.status(400).json({ success: false, message: "OTP expired" });
+        }
+
+        if (String(cachedOtp.otp) !== String(otp)) {
+            return res.status(400).json({ success: false, message: "Invalid OTP" });
+        }
+
+        return res.status(200).json({ success: true,message: "OTP verified successfully" });
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ success: false, message: "Server error" });
+    }
+},
+
     updateUser: async (req, res) => {
         const {
             id,

@@ -5,28 +5,9 @@ const jwtToken = require("../utils/jwt");
 
 const regsiterController = require("../controllers/regsiterCon");
 
+router.post("/login" , regsiterController.loginUser);
 
 router.post("/create-user", regsiterController.createUser);
-
-
-// router.post('/login', (req, res) => {
-//     const { email, password } = req.body;
-
-//     const user = { email };
-
-//     const accessToken = jwtToken.genAccessToken(user);
-//     const refreshToken = jwtToken.requestToken(user);
-
-//     res.cookie("refreshToken", refreshToken, { maxAge: "", httpOnly: true })
-
-//     res.json({
-//         message: "Login successful",
-//         accessToken,
-//         // refreshToken
-//     });
-// });
-
-router.post("/login" , regsiterController.loginUser);
 
 router.post("/send-email-otp" , regsiterController.EmailOtp);
 

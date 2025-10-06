@@ -22,67 +22,6 @@ const transporter = nodemailer.createTransport({
 
 module.exports = {
 
-loginUser: async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-      return res.status(400).json({ message: "Email and password required" });
-    }
-
-    const user = await regsiter.findOne({ where: { email } });
-    if (!user) {
-      return res.status(401).json({ message: "Invalid email or password" });
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ message: "Invalid email or password" });
-    }
-
-    return res.status(200).json({
-      message: "Login successful",
-      user: {
-        id: user.id,
-        email: user.email
-      }
-    });
-
-  } catch (err) {
-    console.error("Login error:", err);
-    res.status(500).json({ message: "Server error" });
-  }
-},
-    getAllusers: async (req, res) => {
-
-        try {
-            const getallusers = await regsiter.findAll();
-            res.status(200).json({ data: getallusers })
-        }
-        catch (error) {
-            console.log("error", error);
-            res.status(500).json({ message: "failed to get all users" })
-        }
-
-    },
-
-    getuserById: async (req, res) => {
-        const { id } = req.params
-        console.log("ID from params:", id);
-        try {
-            const userid = await regsiter.findOne({ where: { id } });
-            if (!userid) {
-                res.status(401).json({ message: "user not found" })
-
-            }
-            res.status(200).json({ data: userid });
-        } catch (error) {
-            console.log("error", error);
-            res.status(500).json({ message: "Failed to retrieve user detial" });
-        }
-    },
-
-
     createUser: async (req, res) => {
         const {
             id,
@@ -93,11 +32,10 @@ loginUser: async (req, res) => {
 
         try {
             const hashedPassword = await bcrypt.hash(password, 10);
-            // const otp = jwttokeninRegsiter.generateSecureOTP();
             const newUser = await regsiter.create({
                 id,
                 email,
-                password:hashedPassword,
+                password: hashedPassword,
                 isActive
             })
             res.status(201).json({ success: true, data: { newUser }, message: "Product created successfully" });
@@ -131,7 +69,6 @@ loginUser: async (req, res) => {
         </div>`
             });
 
-            console.log("Email sended:", otpemail);
             return res.status(200).json({ success: true, message: "Email sent successfully" });
         } catch (err) {
             console.error("Error sending email:", err.message);
@@ -149,7 +86,6 @@ loginUser: async (req, res) => {
 
             const emailKey = email.trim().toLowerCase();
             const cachedOtp = otpCache[emailKey];
-            // console.log(cachedOtp, "cache checkkkkkkk");
 
             if (!cachedOtp) {
                 return res.status(404).json({ success: false, message: "No OTP found for this email" });
@@ -169,6 +105,76 @@ loginUser: async (req, res) => {
         } catch (err) {
             console.error(err);
             return res.status(500).json({ success: false, message: "Server error" });
+        }
+    },
+
+    loginUser: async (req, res) => {
+        try {
+            const { email, password } = req.body;
+
+            if (!email || !password) {
+                return res.status(400).json({ message: "Email and password required" });
+            }
+
+            const user = await regsiter.findOne({ where: { email } });
+            if (!user) {
+                return res.status(401).json({ message: "Invalid email or password" });
+            }
+
+            const isMatch = await bcrypt.compare(password, user.password);
+            if (!isMatch) {
+                return res.status(401).json({ message: "Invalid email or password" });
+
+            }
+            const payload = { email: user.email };
+            const accessToken = jwttokeninRegsiter.genAccessToken(payload);
+            const refreshToken = jwttokeninRegsiter.requestToken(payload);
+
+
+            //saved in cookie 
+
+            res.cookie("refreshToken", refreshToken, {
+                maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+                httpOnly: true
+            });
+
+            return res.status(200).json({user: { email: user.email,password: user.password },
+                message: "Login successful",
+                accessToken,
+            });
+
+        } catch (err) {
+            console.error("Login error:", err);
+            res.status(500).json({ message: "Server error" });
+        }
+    },
+
+    getAllusers: async (req, res) => {
+
+        try {
+            const getallusers = await regsiter.findAll();
+            res.status(200).json({ data: getallusers })
+        }
+        catch (error) {
+            console.log("error", error);
+            res.status(500).json({ message: "failed to get all users" })
+        }
+
+    },
+
+    getuserById: async (req, res) => {
+        const { id } = req.params
+        console.log("ID from params:", id);
+        try {
+            const userid = await regsiter.findOne({ where: { id } });
+            if (!userid) {
+                res.status(401).json({ message: "user not found" })
+
+            }
+            res.status(200).json({ data: userid });
+        } catch (error) {
+            console.log("error", error);
+            res.status(500).json({ message: "Failed to retrieve user detial" });
         }
     },
 

@@ -9,22 +9,24 @@ const regsiterController = require("../controllers/regsiterCon");
 router.post("/create-user", regsiterController.createUser);
 
 
-router.post('/login', (req, res) => {
-    const { email, password } = req.body;
+// router.post('/login', (req, res) => {
+//     const { email, password } = req.body;
 
-    const user = { email };
+//     const user = { email };
 
-    const accessToken = jwtToken.genAccessToken(user);
-    const refreshToken = jwtToken.requestToken(user);
+//     const accessToken = jwtToken.genAccessToken(user);
+//     const refreshToken = jwtToken.requestToken(user);
 
-    res.cookie("refreshToken", refreshToken, { maxAge: "", httpOnly: true })
+//     res.cookie("refreshToken", refreshToken, { maxAge: "", httpOnly: true })
 
-    res.json({
-        message: "Login successful",
-        accessToken,
-        // refreshToken
-    });
-});
+//     res.json({
+//         message: "Login successful",
+//         accessToken,
+//         // refreshToken
+//     });
+// });
+
+router.post("/login" , regsiterController.loginUser);
 
 router.post("/send-email-otp" , regsiterController.EmailOtp);
 
@@ -36,7 +38,7 @@ router.get("/get-user-detailBy/:id", jwtToken.authenticateToken, regsiterControl
 
 router.post("/update-user", jwtToken.authenticateToken, regsiterController.updateUser);
 
-router.post("/delete-user/", regsiterController.deleteUserById);
+router.post("/delete-user/",jwtToken.authenticateToken, regsiterController.deleteUserById);
 
 
 module.exports = router

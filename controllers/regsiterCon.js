@@ -22,6 +22,37 @@ const transporter = nodemailer.createTransport({
 
 module.exports = {
 
+loginUser: async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password required" });
+    }
+
+    const user = await regsiter.findOne({ where: { email } });
+    if (!user) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    return res.status(200).json({
+      message: "Login successful",
+      user: {
+        id: user.id,
+        email: user.email
+      }
+    });
+
+  } catch (err) {
+    console.error("Login error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+},
     getAllusers: async (req, res) => {
 
         try {
@@ -66,7 +97,7 @@ module.exports = {
             const newUser = await regsiter.create({
                 id,
                 email,
-                password: hashedPassword,
+                password:hashedPassword,
                 isActive
             })
             res.status(201).json({ success: true, data: { newUser }, message: "Product created successfully" });
@@ -84,7 +115,7 @@ module.exports = {
             const emailKey = email.trim().toLowerCase();
             otpCache[emailKey] = {
                 otp: otpemail,
-                otpExpiry: Date.now() + 5 * 60 * 1000
+                otpExpiry: Date.now() + 10 * 60 * 1000
             }
             // console.log(otpCache, "otp caheceeeeeeeee");
 
@@ -96,12 +127,12 @@ module.exports = {
             <h2 style="color: #333;">Your OTP Code</h2>
             <p style="font-size: 16px; color: #555;">Please use the following OTP to verify your account:</p>
             <h1 style="font-size: 48px; color: #1a73e8; margin: 20px 0;">${otpemail}</h1>
-            <p style="font-size: 14px; color: #888;">This OTP will expire in 5 minutes.</p>
+            <p style="font-size: 14px; color: #888;">This OTP will expire in 10 minutes.</p>
         </div>`
             });
 
-            console.log("Email sended:",otpemail);
-            return res.status(200).json({ success: true,otp :otpemail,  message: "Email sent successfully" });
+            console.log("Email sended:", otpemail);
+            return res.status(200).json({ success: true, message: "Email sent successfully" });
         } catch (err) {
             console.error("Error sending email:", err.message);
             return res.status(500).json({ success: false, message: "Failed to send email" });
@@ -109,37 +140,37 @@ module.exports = {
 
     },
     verifyOtp: async (req, res) => {
-    try {
-        const { email, otp } = req.body;
+        try {
+            const { email, otp } = req.body;
 
-        if (!email || !otp) {
-            return res.status(400).json({ success: false, message: "Email and OTP are required" });
+            if (!email || !otp) {
+                return res.status(400).json({ success: false, message: "Email and OTP are required" });
+            }
+
+            const emailKey = email.trim().toLowerCase();
+            const cachedOtp = otpCache[emailKey];
+            // console.log(cachedOtp, "cache checkkkkkkk");
+
+            if (!cachedOtp) {
+                return res.status(404).json({ success: false, message: "No OTP found for this email" });
+            }
+
+            if (Date.now() > cachedOtp.otpExpiry) {
+                delete otpCache[emailKey];
+                return res.status(400).json({ success: false, message: "OTP expired" });
+            }
+
+            if (String(cachedOtp.otp) !== String(otp)) {
+                return res.status(400).json({ success: false, message: "Invalid OTP" });
+            }
+
+            return res.status(200).json({ success: true, message: "OTP verified successfully" });
+
+        } catch (err) {
+            console.error(err);
+            return res.status(500).json({ success: false, message: "Server error" });
         }
-
-        const emailKey = email.trim().toLowerCase();
-        const cachedOtp = otpCache[emailKey];
-        console.log(cachedOtp, "cache checkkkkkkk");
-
-        if (!cachedOtp) {
-            return res.status(404).json({ success: false, message: "No OTP found for this email" });
-        }
-
-        if (Date.now() > cachedOtp.otpExpiry) {
-            delete otpCache[emailKey];
-            return res.status(400).json({ success: false, message: "OTP expired" });
-        }
-
-        if (String(cachedOtp.otp) !== String(otp)) {
-            return res.status(400).json({ success: false, message: "Invalid OTP" });
-        }
-
-        return res.status(200).json({ success: true,message: "OTP verified successfully" });
-
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ success: false, message: "Server error" });
-    }
-},
+    },
 
     updateUser: async (req, res) => {
         const {

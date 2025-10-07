@@ -123,7 +123,7 @@ module.exports = {
 
             const isMatch = await bcrypt.compare(password, user.password);
             if (!isMatch) {
-                return res.status(401).json({ message: "Invalid email or password" });
+                return res.status(401).json({success:false, message: "Invalid email or password" });
 
             }
             const payload = { email: user.email };
@@ -140,6 +140,7 @@ module.exports = {
 
             return res.status(200).json({user: { email: user.email,password: user.password },
                 message: "Login successful",
+                success:true,
                 accessToken,
             });
 

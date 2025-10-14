@@ -9,6 +9,10 @@ const regsiterController = require("../controllers/regsiterCon");
 
 router.post("/login" , regsiterController.loginUser);
 
+router.post ("/requestPasswordReset" , regsiterController.requestToEmail);
+
+router.post ("/reset-password" , regsiterController.resetforpassword);
+
 router.get("/goole/callback" , regsiterController.checkauth)
 
 router.post("/create-user", regsiterController.createUser);

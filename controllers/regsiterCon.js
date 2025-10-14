@@ -1,5 +1,5 @@
 const { where } = require("sequelize");
-const regsiter = require("../models/register");
+const regsiter = require("../models/Register");
 const bcrypt = require("bcryptjs");
 const jwttokeninRegsiter = require('../utils/jwt')
 const crypto = require("crypto");
@@ -21,6 +21,10 @@ const transporter = nodemailer.createTransport({
 })
 
 module.exports = {
+
+    checkauth : async(req,res)=>{
+            res.send("add extra url for these wrong sttsus api credintals ")
+    },
 
     createUser: async (req, res) => {
         const {

@@ -2,10 +2,14 @@ const express = require("express")
 const router = express.Router();
 const jwtToken = require("../utils/jwt");
  
+const passport = require("passport");
+require("../middleweres/auth");
 
 const regsiterController = require("../controllers/regsiterCon");
 
 router.post("/login" , regsiterController.loginUser);
+
+router.get("/goole/callback" , regsiterController.checkauth)
 
 router.post("/create-user", regsiterController.createUser);
 
@@ -20,6 +24,26 @@ router.get("/get-user-detailBy/:id", jwtToken.authenticateToken, regsiterControl
 router.post("/update-user", jwtToken.authenticateToken, regsiterController.updateUser);
 
 router.post("/delete-user/",jwtToken.authenticateToken, regsiterController.deleteUserById);
+
+
+//google setup 
+router.get("/google",passport.authenticate("google", { scope: ["profile", "email"] }));
+
+router.get("/google/callback",passport.authenticate("google", { failureRedirect: "/login/google/failed" }),(req, res) => {
+    // Here you can issue your own JWT if you want
+    const token = jwtToken.generateToken(req.user.id);
+
+    res.json({
+      message: "Google login success",
+      user: req.user,
+      token: token,
+    });
+  }
+);
+
+router.get("/google/failed", (req, res) => {
+  res.status(401).json({ message: "Google login failed" });
+});
 
 
 module.exports = router

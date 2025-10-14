@@ -1,12 +1,12 @@
 const dotenv = require('dotenv')
-dotenv.config()
+dotenv.config();
 
 
 const express = require("express")
 
 const app = express();
 
-const cookieParser = require("cookie-parser")
+const cookieParser = require("cookie-parser");
 
 const cors = require("cors");
 
@@ -27,10 +27,33 @@ app.use(cookieParser());
 // Middleware to parse JSON body
 app.use(express.json());
 
-const regsiterRoutes = require("./routes/register")
+//passport api 
 
-app.use("/register", regsiterRoutes)
+const passport = require('passport')
+const session = require('express-session')
 
+const LocalStrategy = require('passport-local').Strategy
+
+app.use(session({
+    secret: "secret",
+    resave: false,
+    saveUninitialized: true,
+
+}))
+
+app.use(passport.initialize());
+
+app.use(passport.session());
+
+
+app.use(express.urlencoded({ extended: true }));
+
+
+const regsiterRoutes = require("./routes/register");
+const userpostroutes = require("./routes/userpost");
+
+app.use("/register", regsiterRoutes);
+app.use("/userpost", userpostroutes);
 
 // check route
 app.get('/get-check', (req, res) => {

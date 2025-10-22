@@ -9,6 +9,8 @@ const regsiterController = require("../controllers/regsiterCon");
 
 router.post("/login" , regsiterController.loginUser);
 
+router.post("/refresh-token" , regsiterController.refreshTokenUser)
+
 router.post ("/requestPasswordReset" , regsiterController.requestToEmail);
 
 router.post ("/reset-password" , regsiterController.resetforpassword);

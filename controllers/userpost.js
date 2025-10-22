@@ -17,7 +17,7 @@ const upload = multer({
     fileFilter: function (req, file, cb) {
         checkFileType(file, cb);
     }
-}).single('myFile', 2);
+}).single('myFile');
 
 function checkFileType(file, cb) {
     const filetypes = /jpeg|jpg|png|gif/;
@@ -30,9 +30,6 @@ function checkFileType(file, cb) {
         cb('Error: Images only! (jpeg, jpg, png, gif)');
     }
 }
-
-// console.log(storage, "hiiiiiiiiiiiiiiiiii");
-// console.log(upload, "helloooooooooooo");
 
 module.exports = {
 
@@ -77,7 +74,7 @@ module.exports = {
             res.status(200).json({ message: 'File uploaded successfully!', file: req.file });
         })
     },
-
+    
     deletepost: async (req, res) => {
 
         const { id } = req.body;

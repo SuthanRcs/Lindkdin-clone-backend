@@ -1,16 +1,22 @@
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto")
-const genAccessToken = (payload) => {
 
+
+const genAccessToken = (payload) => {
     const accesstoken = jwt.sign(payload, process.env.ACCESS_SECRET_KEY, { expiresIn: "5m" });
     return accesstoken;
 
 }
 
-const requestToken = (payload) => {
+const genrefreshtoken = (payload) => {
     const requestToken = jwt.sign(payload, process.env.REFERSH_TOKEN, { expiresIn: "5d" });
     return requestToken;
 }
+
+const refreshtoAcesstoken = (payload) =>{
+    const newacesstoken = jwt.sign(payload, process.env.ACCESS_SECRET_KEY , {expiresIn:"2h"})
+        return newacesstoken ; 
+} 
 
 
 function authenticateToken(req, res, next) {
@@ -34,4 +40,4 @@ function generateSecureOTP(length = 6) {
 
 
 
-module.exports = { authenticateToken, genAccessToken, requestToken ,generateSecureOTP }
+module.exports = { authenticateToken, genAccessToken, genrefreshtoken , refreshtoAcesstoken ,generateSecureOTP }

@@ -5,6 +5,10 @@ const jwttokeninRegsiter = require('../utils/jwt')
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 
+//refresh token save in empty arrAYB 
+
+let storerefreshTokens = [];
+
 
 const otpCache = {};
 
@@ -133,21 +137,28 @@ module.exports = {
             }
             const payload = { email: user.email };
             const accessToken = jwttokeninRegsiter.genAccessToken(payload);
-            const refreshToken = jwttokeninRegsiter.requestToken(payload);
+            const refreshToken = jwttokeninRegsiter.genrefreshtoken(payload);
 
+
+            //saved in empty arry 
+
+            storerefreshTokens.push(refreshToken)
+
+            console.log(storerefreshTokens, "sptreddddddddddddddddddddddddddddd");
 
             //saved in cookie 
 
-            res.cookie("refreshToken", refreshToken, {
-                maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-                httpOnly: true
-            });
+            // res.cookie("refreshToken", refreshToken, {
+            //     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+            //     httpOnly: true
+            // });
 
             return res.status(200).json({
                 user: { email: user.email, password: user.password },
                 message: "Login successful",
                 success: true,
                 accessToken,
+                refreshToken
             });
 
         } catch (err) {
@@ -155,6 +166,28 @@ module.exports = {
             res.status(500).json({ message: "Server error" });
         }
     },
+
+    refreshTokenUser: async (req, res) => {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken || !storerefreshTokens.includes(refreshToken)) {
+        return res.status(403).json({ message: "Invalid refresh token" });
+    }
+
+    jwt.verify(refreshToken, process.env.REFERSH_TOKEN, (err, user) => {
+        if (err) {
+            return res.status(403).json({ message: "Token invalid" });
+        }
+
+        const newAccessToken = jwttokeninRegsiter.refreshtoAcesstoken({ email: user.email });
+        res.status(200).json({
+            success: true,
+            accessToken: newAccessToken,
+            message: "Access token refreshed successfully"
+        });
+    });
+},
+
 
     requestToEmail: async (req, res) => {
         const { email } = req.body

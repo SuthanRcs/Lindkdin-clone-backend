@@ -10,7 +10,8 @@ module.exports = sequelize.define(
             primaryKey: true
         },
         email: {
-            type: DataTypes.STRING
+            type: DataTypes.STRING,
+            unique:true
         },
         password: {
             type: DataTypes.STRING,
